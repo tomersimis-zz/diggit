@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Diggit - GitHub follower recommendation tool</title>
+
+    <!-- Bootstrap -->
+    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,300' rel='stylesheet' type='text/css'>
+
+    <link href="css/default.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <header class="container-fluid" id="header">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+
+                <img src="img/logo.png" id="logo" />
+
+                <h1>Discover new people to follow on GitHub based on <br />common interests</h1>
+
+                {{#if user}}
+                  <h2>Hello, {{ user.displayName }}</h2>
+                {{else}}
+                  <a href="/auth/">Sign in with <strong>GitHub</strong></a>
+                {{/if}}
+            </div>
+        </div>
+    </header>
+
+    <nav id="results-config">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2>Showing <strong>38</strong> users</h2>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="result">
+            <div class="result-header">
+              <img src="https://avatars2.githubusercontent.com/u/518217?v=3&s=140" />
+              <h1>Tomer Simis</h1>
+              <h2><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Recife - Brazil</h2>
+              <span class="result-score">
+                4.7
+              </span>
+            </div>
+
+            <div class="result-body">
+              <p>
+                <strong><span class="glyphicon glyphicon-star" aria-hidden="true"></span> Starred Repositories</strong>
+                express.js, passport, groundhog and 45 others
+              </p>
+              <p>
+                <strong><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Watched Repositories</strong>
+                express.js, passport, groundhog and 45 others
+              </p>
+              <p>
+                <strong><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Languages</strong>
+                Javascript, Python, Java and 3 others
+              </p>
+            </div>
+
+            <div class="result-footer">
+              <div class="result-follower">
+                <span class="you">YOU</span>
+                <span class="arrow"></span>
+                <a href="#"><img src="https://avatars0.githubusercontent.com/u/936421?v=3&s=460" /></a>
+                <span class="arrow"></span>
+                <a href="#"><img src="https://avatars2.githubusercontent.com/u/518217?v=3&s=140" /></a>
+              </div>
+            
+                <a class="github-button" href="https://github.com/ntkme" data-style="mega" data-count-href="/ntkme/followers" data-count-api="/users/ntkme#followers" data-count-aria-label="# followers on GitHub" aria-label="Follow @ntkme on GitHub">Follow @ntkme</a>
+            </div>
+
+          </div>
+
+          <div class="result">
+            <div class="result-header">
+              <img src="https://avatars2.githubusercontent.com/u/518217?v=3&s=140" />
+              <h1>Tomer Simis</h1>
+              <h2><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Recife - Brazil</h2>
+              <span class="result-score">
+                4.7
+              </span>
+            </div>
+
+            <div class="result-body">
+              <p>
+                <strong><span class="glyphicon glyphicon-star" aria-hidden="true"></span> Starred Repositories</strong>
+                express.js, passport, groundhog and 45 others
+              </p>
+              <p>
+                <strong><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Watched Repositories</strong>
+                express.js, passport, groundhog and 45 others
+              </p>
+              <p>
+                <strong><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Languages</strong>
+                Javascript, Python, Java and 3 others
+              </p>
+            </div>
+
+            <div class="result-footer">
+              <div class="result-follower">
+                <span class="you">YOU</span>
+                <span class="arrow"></span>
+                <a href="#"><img src="https://avatars0.githubusercontent.com/u/936421?v=3&s=460" /></a>
+                <span class="arrow"></span>
+                <a href="#"><img src="https://avatars2.githubusercontent.com/u/518217?v=3&s=140" /></a>
+              </div>
+            
+                <a class="github-button" href="https://github.com/ntkme" data-style="mega" data-count-href="/ntkme/followers" data-count-api="/users/ntkme#followers" data-count-aria-label="# followers on GitHub" aria-label="Follow @ntkme on GitHub">Follow @ntkme</a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  </body>
+</html>

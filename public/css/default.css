@@ -1,0 +1,134 @@
+#header{
+    background: url("../img/header_bg.jpg") no-repeat #fa6153;
+    background-size: cover;
+    height: 450px;
+    text-align: center;
+    box-shadow: inset 0px -3px 0px rgba(0,0,0,0.1);
+}
+
+#header h1{
+    font: 300 24px "Open Sans";
+    color: #fff;
+    margin-top: 20px;
+}
+
+
+#logo{
+    width: 204px;
+    height: 93px;
+    margin-top: 90px;
+}
+
+#header a, #header h2{
+    border: solid 1px #fff;
+    padding: 10px 20px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 20px;
+    font: 400 16px "Open Sans";
+    margin-top: 30px;
+    display: inline-block;
+    transition: all 0.2s ease-in-out;
+}
+
+#header a:hover{
+    background: #fff;
+    color: #fa6153;
+}
+
+#results-config{
+    background: #f3f3f3;
+}
+
+#results-config h2{
+    font: 300 24px "Open Sans";
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.result{
+    width: 45%;
+    margin: 40px 1.66%;
+    box-shadow: 0px 0px 3px rgba(0,0,0,0.2);
+    position: relative;
+    float: left;
+}
+
+.result-header{
+    padding: 20px;
+}
+
+.result-header img{
+    width: 75px;
+    height: 75px;
+    border-radius: 10px;
+    float: left;
+    margin-right: 15px;
+}
+
+.result-header h1{
+    font: 600 20px "Open Sans";
+    color: #777;
+    margin: 10px 0px 5px 0px;
+}
+
+.result-header h2{
+    font: 400 14px "Open Sans";
+    color: #AAA;
+    margin: 0px;
+}
+
+.result-score{
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 10px;
+    background: #fa6153;
+    font: 700 16px "Open Sans";
+    color: #fff;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+.result-body{
+    margin: 10px 20px 20px 20px;
+}
+
+.result-body p{
+    margin: 15px 0px;
+}
+
+.result-body strong{
+    display: block;
+    color: #888;
+    font: 300 14px "Open Sans";
+}
+
+.result-footer{
+    background: #f1f1f1;
+    padding: 20px 20px 17px 20px;
+    text-align: right;
+}
+
+.result-follower{
+    float: left;
+}
+
+.result-follower a img{
+    border-radius: 100%;
+    width: 30px;
+    height: 30px;
+}
+
+.you{
+    font: 700 14px "Open Sans";
+    color: #777;
+}
+
+.arrow{
+    display: inline-block;
+    width: 15px;
+    height: 8px;
+    background: url("../img/arrow.png") no-repeat;
+    background-size: cover;
+}

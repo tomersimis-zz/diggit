@@ -1,0 +1,23 @@
+{
+  "name": "diggit",
+  "authors": [
+    "Tomer Simis <tls@cin.ufpe.br>",
+    "Marlon Reghert <mras@cin.ufpe.br>",
+    "Luiz Reis <lrnn@cin.ufpe.br>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6"
+  }
+}
