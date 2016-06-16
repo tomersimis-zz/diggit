@@ -12,7 +12,6 @@
     margin-top: 20px;
 }
 
-
 #logo{
     width: 204px;
     height: 93px;
@@ -34,6 +33,12 @@
 #header a:hover{
     background: #fff;
     color: #fa6153;
+}
+
+#header #signout{
+    background: none;
+    border: none;
+    color: #8a312a;
 }
 
 #results-config{
