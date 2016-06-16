@@ -2,8 +2,13 @@ var express = require('express');
 var passport = require('passport');
 var GitHubStrategy = require('passport-github').Strategy;
 var GitHubApi = require("github");
+var jsnx = require('jsnetworkx');
+var async = require('async');
 
 var app = express();
+
+// Constants
+const MAX_ROOT_DISTANCE = 1; // starts at 0
 
 // Views configuration
 app.set('view engine', 'html');
@@ -48,7 +53,11 @@ var github = new GitHubApi();
 app.get('/', function(req, res) {
 	
 	if(req.user){
-		// use github to execute algorithm
+		
+		buildGraph(req.user.username,function(graph){
+			console.log("--------------------------")
+			console.log("Nodes " + graph.numberOfNodes());
+		});
 	}
 
 	res.render('index', {
@@ -70,3 +79,56 @@ app.get('/auth/callback',
 app.listen(3000, function () {
   console.log('Server listening on port 3000.');
 });
+
+function buildGraph(root, callback){
+
+	var graph = new jsnx.DiGraph();
+	
+	graph.addNode(root);
+
+	var nodes = [
+		{
+			label: root,
+			level: 0
+		}
+	];
+
+	async.whilst(
+		function(){
+			return nodes.length > 0;
+		},
+		function(next){
+			var node = nodes.pop();
+			console.log(node);
+
+			if(graph.get(node.label).length > 0) next();
+
+			github.users.getFollowingForUser({
+				user: node.label
+			}, function(err, res) {
+				if(err) console.log(err);
+
+				for(var i in res){
+					graph.addNode(node.label);
+					graph.addEdge(node.label, res[i].login);
+
+					if(node.level + 1 < MAX_ROOT_DISTANCE){
+						nodes.push({
+							label: res[i].login,
+							level: node.level + 1
+						});
+					}
+
+				}
+
+				next();
+
+			});
+
+		},
+		function(err){
+			callback(graph);
+		}
+	);
+
+}
