@@ -8,7 +8,7 @@ var async = require('async');
 var app = express();
 
 // Constants
-const MAX_ROOT_DISTANCE = 1; // starts at 0
+const MAX_ROOT_DISTANCE = 3; // starts at 0
 
 // Views configuration
 app.set('view engine', 'html');
@@ -106,7 +106,10 @@ function buildGraph(root, callback){
 			var node = nodes.shift();
 			console.log(node);
 
-			if(graph.get(node.label).length > 0) next();
+			if(graph.get(node.label).length > 0) { 
+				next();
+				return;
+			}
 
 			github.users.getFollowingForUser({
 				user: node.label
