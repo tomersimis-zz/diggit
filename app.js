@@ -103,7 +103,7 @@ function buildGraph(root, callback){
 			return nodes.length > 0;
 		},
 		function(next){
-			var node = nodes.pop();
+			var node = nodes.shift();
 			console.log(node);
 
 			if(graph.get(node.label).length > 0) next();
