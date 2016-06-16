@@ -65,12 +65,17 @@ app.get('/', function(req, res) {
 	});
 });
 
+app.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
+});
+
 app.get('/auth/',
   passport.authenticate('github', {
 	scope: ['user', 'user:follow']
   }));
 
-app.get('/auth/callback', 
+app.get('/auth/callback',
   passport.authenticate('github', { failureRedirect: '/' }),
   function(req, res) {
 	res.redirect('/');
@@ -109,6 +114,7 @@ function buildGraph(root, callback){
 				if(err) console.log(err);
 
 				for(var i in res){
+					if(!res[i].login) continue;
 					graph.addNode(node.label);
 					graph.addEdge(node.label, res[i].login);
 

@@ -32,6 +32,7 @@
 
                 {{#if user}}
                   <h2>Hello, {{ user.displayName }}</h2>
+                  <a href="/logout/">Sign out</a>
                 {{else}}
                   <a href="/auth/">Sign in with <strong>GitHub</strong></a>
                 {{/if}}
