@@ -17,7 +17,9 @@
     "github": "^1.1.2",
     "hbs": "^4.0.0",
     "jsnetworkx": "^0.3.4",
+    "moment": "^2.13.0",
     "passport": "^0.3.2",
-    "passport-github": "^1.1.0"
+    "passport-github": "^1.1.0",
+    "redis": "^2.6.2"
   }
 }
