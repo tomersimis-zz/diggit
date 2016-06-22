@@ -2,17 +2,19 @@ var express = require('express');
 var passport = require('passport');
 var GitHubStrategy = require('passport-github').Strategy;
 var GitHubApi = require("github");
-var jsnx = require('jsnetworkx');
 var async = require('async');
 var redis = require("redis");
+
+var Graph = require('./graph.js');
+var Recommendation = require('./recommendation.js');
 
 // Express
 var app = express();
 
 // Constants
-const MAX_ROOT_DISTANCE = 3; // starts at 0
+const MAX_ROOT_DISTANCE = 4; // starts at 0
 const NODE_TTL = 120; // time to keep node cache (in minutes)
-const USERS_PER_REQUEST = 3;
+const USERS_PER_REQUEST = 2;
 const STARRED_PER_REQUEST = 1000;
 const WATCHED_PER_REQUEST = 1000;
 
@@ -68,9 +70,9 @@ app.get('/', function(req, res) {
 	if(req.user){
 		
 		buildGraph(req.user.username, function(graph){
-			console.log("--------------------------")
+			console.log("---------------------------------")
 			console.log("Nodes " + graph.numberOfNodes());
-			console.log(graph.nodes());
+			console.log("LocalPath " + Recommendation.localPath(req.user.username, graph));
 
 			res.render('index', {
 				user: req.user
@@ -99,14 +101,15 @@ app.get('/auth/callback',
 	res.redirect('/');
   });
 
-app.listen(3000, function () {
+var server = app.listen(3000, function () {
   console.log('Server listening on port 3000.');
 });
 
+server.timeout = 10*60*1000;
 
 function buildGraph(root, callback){
 
-	var graph = new jsnx.DiGraph();
+	var graph = new Graph();
 	
 	graph.addNode(root);
 
@@ -122,7 +125,7 @@ function buildGraph(root, callback){
 			return nodes.length > 0;
 		},
 		function(next){
-			fetchNode(nodes, graph, next)
+			fetchNode(nodes, graph, next);
 		},
 		function(err){
 			callback(graph);
@@ -131,11 +134,10 @@ function buildGraph(root, callback){
 
 }
 
-
 function fetchNode(nodes, graph, next){
 	var node = nodes.shift();
 	
-	if(graph.get(node.label).size > 0) {
+	if(graph.exists(node.label) && graph.get(node.label).adj.size > 0) {
 		console.log("[SKIPPING] " + node.label);
 		return next();
 	}
@@ -144,9 +146,9 @@ function fetchNode(nodes, graph, next){
 
 	client.hgetall(node.label, function(err, reply){
 		if(reply){
-			console.log("Cache hit");
 			var following = reply.following.split(',');
 			for(var i in following){
+				if(!following[i] || following[i].length == 0) continue;
 				graph.addNode(following[i]);
 				graph.addEdge(node.label, following[i]);
 
@@ -157,9 +159,10 @@ function fetchNode(nodes, graph, next){
 					});
 				}
 			}
+			graph.get(node.label).starred = reply.starred.split(',');
+			graph.get(node.label).watched = reply.watched.split(',');
 			next();
 		}else{
-			console.log("Cache miss");
 			buildNode(node, nodes, graph, next);
 		}
 	});
@@ -203,7 +206,7 @@ function buildNode(node, nodes, graph, next){
 			if(!results.following[i].login || results.following[i].login.length == 0) continue;
 
 			following.push(results.following[i].login);
-			graph.addNode(node.label);
+			graph.addNode(results.following[i].login);
 			graph.addEdge(node.label, results.following[i].login);
 
 			if(node.level + 1 < MAX_ROOT_DISTANCE){
@@ -224,6 +227,9 @@ function buildNode(node, nodes, graph, next){
 			watched.push(results.watched[i].full_name);
 		}
 
+		graph.get(node.label).starred = starred;
+		graph.get(node.label).watched = watched;
+
 		client.hmset(node.label, ["following", following.toString(), "starred", starred.toString(), "watched", watched.toString()], function (err, res) {
 			if(err) return console.log(err);
 			client.expire(node.label, NODE_TTL*60, function(err, res){
@@ -232,6 +238,4 @@ function buildNode(node, nodes, graph, next){
 			});
 		});
 	});
-
-	
 }

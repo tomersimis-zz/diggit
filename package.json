@@ -11,13 +11,13 @@
   "dependencies": {
     "async": "^2.0.0-rc.6",
     "body-parser": "^1.15.1",
+    "connect-timeout": "^1.7.0",
     "cookie-parser": "^1.4.3",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
     "github": "^1.1.2",
     "hbs": "^4.0.0",
-    "jsnetworkx": "^0.3.4",
-    "moment": "^2.13.0",
+    "lodash": "^4.13.1",
     "passport": "^0.3.2",
     "passport-github": "^1.1.0",
     "redis": "^2.6.2"
