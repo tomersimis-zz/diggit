@@ -4,6 +4,7 @@ var GitHubStrategy = require('passport-github').Strategy;
 var GitHubApi = require("github");
 var async = require('async');
 var redis = require("redis");
+var _ = require('lodash');
 
 var Graph = require('./graph.js');
 var Recommendation = require('./recommendation.js');
@@ -72,7 +73,6 @@ app.get('/', function(req, res) {
 		buildGraph(req.user.username, function(graph){
 			console.log("---------------------------------")
 			console.log("Nodes " + graph.numberOfNodes());
-			console.log("LocalPath " + Recommendation.localPath(req.user.username, graph));
 
 			res.render('index', {
 				user: req.user
@@ -147,12 +147,12 @@ function fetchNode(nodes, graph, next){
 	client.hgetall(node.label, function(err, reply){
 		if(reply){
 			var following = reply.following.split(',');
-			for(var i in following){
-				if(!following[i] || following[i].length == 0) continue;
-				graph.addNode(following[i]);
-				graph.addEdge(node.label, following[i]);
+			if(node.level < MAX_ROOT_DISTANCE){
+				for(var i in following){
+					if(!following[i] || following[i].length == 0) continue;
+					graph.addNode(following[i]);
+					graph.addEdge(node.label, following[i]);
 
-				if(node.level + 1 < MAX_ROOT_DISTANCE){
 					nodes.push({
 						label: following[i],
 						level: node.level + 1
@@ -173,6 +173,8 @@ function buildNode(node, nodes, graph, next){
 
 	async.parallel({
 		following: function(callback){
+			if(node.level >= MAX_ROOT_DISTANCE) return callback(null, []);
+
 			github.users.getFollowingForUser({
 				user: node.label,
 				per_page: USERS_PER_REQUEST
@@ -202,18 +204,19 @@ function buildNode(node, nodes, graph, next){
 	},
 	function(err, results) {
 		var following = [];
-		for(var i in results.following){
-			if(!results.following[i].login || results.following[i].login.length == 0) continue;
+		if(node.level < MAX_ROOT_DISTANCE){
+			for(var i in results.following){
+				if(!results.following[i].login || results.following[i].login.length == 0) continue;
 
-			following.push(results.following[i].login);
-			graph.addNode(results.following[i].login);
-			graph.addEdge(node.label, results.following[i].login);
+				following.push(results.following[i].login);
+				graph.addNode(results.following[i].login);
+				graph.addEdge(node.label, results.following[i].login);
 
-			if(node.level + 1 < MAX_ROOT_DISTANCE){
 				nodes.push({
 					label: results.following[i].login,
 					level: node.level + 1
 				});
+
 			}
 		}
 

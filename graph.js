@@ -16,6 +16,7 @@ Graph.prototype.exists = function(label){
 
 Graph.prototype.addNode = function(label, data){
     this.graph[label] = {
+        label: label,
         adj: []
     };
 
