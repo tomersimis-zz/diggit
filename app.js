@@ -21,7 +21,7 @@ const WATCHED_PER_REQUEST = 1000;
 
 // Views configuration
 app.set('view engine', 'html');
-app.engine('html', require('hbs').__express); 
+app.engine('html', require('hbs').__express);
 app.set('views', __dirname + '/views')
 
 // Static files configuration
@@ -67,9 +67,9 @@ passport.deserializeUser(function(user, done) {
 var github = new GitHubApi();
 
 app.get('/', function(req, res) {
-	
+
 	if(req.user){
-		
+
 		buildGraph(req.user.username, function(graph){
 			// console.log("---------------------------------------------------------")
 			// console.log("---------------------------------------------------------")
@@ -128,15 +128,11 @@ function buildGraph(root, callback){
   processed = {}
 
 	var graph = new Graph();
-<<<<<<< HEAD
 
-	graph.tryAddNode(root);
-=======
-	
-	graph.addNode(root, {
+	graph.tryAddNode(root, {
 		avatar: ''
 	});
->>>>>>> 190adf0b283d95f0b86fb166204ffe070d1592f4
+
 
 	var nodes = [
 		{
@@ -161,15 +157,9 @@ function buildGraph(root, callback){
 
 function fetchNode(nodes, graph, next){
 	var node = nodes.shift();
-<<<<<<< HEAD
 
 	if(processed[node.label]) {
 		console.log("[SKIPPING] " + node.label);
-=======
-	
-	if(graph.exists(node.label) && graph.get(node.label).adj.size > 0) {
-		//console.log("[SKIPPING] " + node.label);
->>>>>>> 190adf0b283d95f0b86fb166204ffe070d1592f4
 		return next();
 	}
   processed[node.label] = true;
@@ -178,12 +168,7 @@ function fetchNode(nodes, graph, next){
 
 	client.hgetall(node.label, function(err, reply){
 		if(reply){
-<<<<<<< HEAD
-      console.log("[REPLY]");
-			var following = reply.following.split(',');
-=======
 			var following = reply.following.split(',').filter(function(el) {return el.length != 0});;
->>>>>>> 190adf0b283d95f0b86fb166204ffe070d1592f4
 			if(node.level < MAX_ROOT_DISTANCE){
 				for(var i in following){
 					if(!following[i] || following[i].length == 0) continue;
@@ -248,13 +233,11 @@ function buildNode(node, nodes, graph, next){
 			for(var i in results.following){
 				if(!results.following[i].login || results.following[i].login.length == 0) continue;
 				following.push(results.following[i].login);
-<<<<<<< HEAD
-				graph.tryAddNode(results.following[i].login);
-=======
-				graph.addNode(results.following[i].login, {
+
+				graph.tryAddNode(results.following[i].login, {
 					avatar: results.following[i].avatar_url
 				});
->>>>>>> 190adf0b283d95f0b86fb166204ffe070d1592f4
+
 				graph.addEdge(node.label, results.following[i].login);
 
 				nodes.push({
@@ -286,7 +269,7 @@ function buildNode(node, nodes, graph, next){
 
 		graph.get(node.label).starred = starred;
 		graph.get(node.label).watched = watched;
-		graph.get(node.label).languages = languages; 
+		graph.get(node.label).languages = languages;
 
 		client.hmset(node.label, ["avatar", graph.get(node.label).avatar, "following", following.join(), "starred", starred.join(), "watched", watched.join(), "languages", languages.join()], function (err, res) {
 			if(err) return console.log(err);
