@@ -17,7 +17,8 @@ Graph.prototype.exists = function(label){
 Graph.prototype.addNode = function(label, data){
     this.graph[label] = {
         label: label,
-        adj: []
+        adj: [],
+        pre: []
     };
 
     if(arguments.length > 1)
@@ -27,6 +28,8 @@ Graph.prototype.addNode = function(label, data){
 Graph.prototype.addEdge = function(from, to){
     if(this.graph[from].adj.indexOf(to) < 0)
         this.graph[from].adj.push(to);
+    if(this.graph[to].pre.indexOf(from) < 0)
+        this.graph[to].pre.push(from);
 }
 
 Graph.prototype.numberOfNodes = function(){

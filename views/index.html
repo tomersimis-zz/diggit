@@ -44,7 +44,7 @@
       <div class="container">
         <div class="row">
           <div class="col-md-12">
-            <h2>Showing <strong>38</strong> users</h2>
+            <h2>Showing <strong>{{count}}</strong> users</h2>
           </div>
         </div>
       </div>
@@ -53,83 +53,46 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <div class="result">
-            <div class="result-header">
-              <img src="https://avatars2.githubusercontent.com/u/518217?v=3&s=140" />
-              <h1>Tomer Simis</h1>
-              <h2><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Recife - Brazil</h2>
-              <span class="result-score">
-                4.7
-              </span>
-            </div>
-
-            <div class="result-body">
-              <p>
-                <strong><span class="glyphicon glyphicon-star" aria-hidden="true"></span> Starred Repositories</strong>
-                express.js, passport, groundhog and 45 others
-              </p>
-              <p>
-                <strong><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Watched Repositories</strong>
-                express.js, passport, groundhog and 45 others
-              </p>
-              <p>
-                <strong><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Languages</strong>
-                Javascript, Python, Java and 3 others
-              </p>
-            </div>
-
-            <div class="result-footer">
-              <div class="result-follower">
-                <span class="you">YOU</span>
-                <span class="arrow"></span>
-                <a href="#"><img src="https://avatars0.githubusercontent.com/u/936421?v=3&s=460" /></a>
-                <span class="arrow"></span>
-                <a href="#"><img src="https://avatars2.githubusercontent.com/u/518217?v=3&s=140" /></a>
+          {{#each lpResult}}
+            <div class="result">
+              <div class="result-header">
+                <img src="{{avatar}}&s=140" />
+                <h1>{{login}}</h1> 
+                <h2><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Recife - Brazil</h2>
+                <span class="result-score">
+                  {{ score }}
+                </span>
               </div>
-            
-                <a class="github-button" href="https://github.com/ntkme" data-style="mega" data-count-href="/ntkme/followers" data-count-api="/users/ntkme#followers" data-count-aria-label="# followers on GitHub" aria-label="Follow @ntkme on GitHub">Follow @ntkme</a>
-            </div>
 
-          </div>
-
-          <div class="result">
-            <div class="result-header">
-              <img src="https://avatars2.githubusercontent.com/u/518217?v=3&s=140" />
-              <h1>Tomer Simis</h1>
-              <h2><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Recife - Brazil</h2>
-              <span class="result-score">
-                4.7
-              </span>
-            </div>
-
-            <div class="result-body">
-              <p>
-                <strong><span class="glyphicon glyphicon-star" aria-hidden="true"></span> Starred Repositories</strong>
-                express.js, passport, groundhog and 45 others
-              </p>
-              <p>
-                <strong><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Watched Repositories</strong>
-                express.js, passport, groundhog and 45 others
-              </p>
-              <p>
-                <strong><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Languages</strong>
-                Javascript, Python, Java and 3 others
-              </p>
-            </div>
-
-            <div class="result-footer">
-              <div class="result-follower">
-                <span class="you">YOU</span>
-                <span class="arrow"></span>
-                <a href="#"><img src="https://avatars0.githubusercontent.com/u/936421?v=3&s=460" /></a>
-                <span class="arrow"></span>
-                <a href="#"><img src="https://avatars2.githubusercontent.com/u/518217?v=3&s=140" /></a>
+              <div class="result-body">
+                <p>
+                  <strong><span class="glyphicon glyphicon-star" aria-hidden="true"></span> Starred Repositories</strong>
+                    {{commonStarred}}
+                </p>
+                <p>
+                  <strong><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Watched Repositories</strong>
+                    {{commonWatched}}
+                </p>
+                <p>
+                  <strong><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Languages</strong>
+                    {{commonLanguages}}
+                </p>
               </div>
-            
-                <a class="github-button" href="https://github.com/ntkme" data-style="mega" data-count-href="/ntkme/followers" data-count-api="/users/ntkme#followers" data-count-aria-label="# followers on GitHub" aria-label="Follow @ntkme on GitHub">Follow @ntkme</a>
-            </div>
 
-          </div>
+              <div class="result-footer">
+                <div class="result-follower">
+                  <span class="you">YOU</span>
+                  <span class="arrow"></span>
+                  <a href="#"><img src="https://avatars0.githubusercontent.com/u/936421?v=3&s=460" /></a>
+                  <span class="arrow"></span>
+                  <a href="#"><img src="https://avatars2.githubusercontent.com/u/518217?v=3&s=140" /></a>
+                </div>
+              
+                  <a class="github-button" href="https://github.com/{{login}}" data-style="mega" data-count-href="/{{login}}/followers" data-count-api="/users/{{login}}#followers" data-count-aria-label="# followers on GitHub" aria-label="Follow @{{login}} on GitHub">Follow @{{login}}</a>
+              </div>
+
+            </div>
+          {{/each}}
         </div>
       </div>
     </div>

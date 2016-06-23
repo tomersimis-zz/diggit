@@ -13,9 +13,9 @@ var Recommendation = require('./recommendation.js');
 var app = express();
 
 // Constants
-const MAX_ROOT_DISTANCE = 4; // starts at 0
-const NODE_TTL = 120; // time to keep node cache (in minutes)
-const USERS_PER_REQUEST = 2;
+const MAX_ROOT_DISTANCE = 3; // starts at 0
+const NODE_TTL = 90000; // time to keep node cache (in minutes)
+const USERS_PER_REQUEST = 4;
 const STARRED_PER_REQUEST = 1000;
 const WATCHED_PER_REQUEST = 1000;
 
@@ -71,11 +71,26 @@ app.get('/', function(req, res) {
 	if(req.user){
 		
 		buildGraph(req.user.username, function(graph){
-			console.log("---------------------------------")
-			console.log("Nodes " + graph.numberOfNodes());
+			// console.log("---------------------------------------------------------")
+			// console.log("---------------------------------------------------------")
+			// console.log("Nodes " + graph.numberOfNodes());
+
+			// var nodes = graph.nodes();
+			// _.forEach(graph.nodes(), function(label){
+			// 	var node = graph.get(label);
+			// 	console.log(label);
+			// 	console.log(node.pre);
+			// 	console.log("------")
+			// })
+
+			var lp = Recommendation.localPath(req.user.username, graph);
+
+			var lpResult = Recommendation.prepare(lp, req.user.username, graph);
 
 			res.render('index', {
-				user: req.user
+				count: lpResult.length,
+				user: req.user,
+				lpResult: lpResult
 			});
 
 		});
@@ -111,7 +126,9 @@ function buildGraph(root, callback){
 
 	var graph = new Graph();
 	
-	graph.addNode(root);
+	graph.addNode(root, {
+		avatar: ''
+	});
 
 	var nodes = [
 		{
@@ -138,15 +155,15 @@ function fetchNode(nodes, graph, next){
 	var node = nodes.shift();
 	
 	if(graph.exists(node.label) && graph.get(node.label).adj.size > 0) {
-		console.log("[SKIPPING] " + node.label);
+		//console.log("[SKIPPING] " + node.label);
 		return next();
 	}
 
-	console.log("[PROCESSING] " + node.label + " - " + node.level);
+	//console.log("[PROCESSING] " + node.label + " - " + node.level);
 
 	client.hgetall(node.label, function(err, reply){
 		if(reply){
-			var following = reply.following.split(',');
+			var following = reply.following.split(',').filter(function(el) {return el.length != 0});;
 			if(node.level < MAX_ROOT_DISTANCE){
 				for(var i in following){
 					if(!following[i] || following[i].length == 0) continue;
@@ -159,8 +176,10 @@ function fetchNode(nodes, graph, next){
 					});
 				}
 			}
-			graph.get(node.label).starred = reply.starred.split(',');
-			graph.get(node.label).watched = reply.watched.split(',');
+			graph.get(node.label).starred = reply.starred.split(',').filter(function(el) {return el.length != 0});
+			graph.get(node.label).watched = reply.watched.split(',').filter(function(el) {return el.length != 0});
+			graph.get(node.label).languages = reply.languages.split(',').filter(function(el) {return el.length != 0});
+			graph.get(node.label).avatar = reply.avatar;
 			next();
 		}else{
 			buildNode(node, nodes, graph, next);
@@ -207,9 +226,10 @@ function buildNode(node, nodes, graph, next){
 		if(node.level < MAX_ROOT_DISTANCE){
 			for(var i in results.following){
 				if(!results.following[i].login || results.following[i].login.length == 0) continue;
-
 				following.push(results.following[i].login);
-				graph.addNode(results.following[i].login);
+				graph.addNode(results.following[i].login, {
+					avatar: results.following[i].avatar_url
+				});
 				graph.addEdge(node.label, results.following[i].login);
 
 				nodes.push({
@@ -221,19 +241,29 @@ function buildNode(node, nodes, graph, next){
 		}
 
 		var starred = [];
+		var languages = {};
 		for(var i in results.starred){
-			starred.push(results.starred[i].full_name);
+			languages[results.starred[i].language] = true;
+			starred.push(results.starred[i].name);
 		}
 
 		var watched = [];
 		for(var i in results.watched){
-			watched.push(results.watched[i].full_name);
+			languages[results.watched[i].language] = true;
+			watched.push(results.watched[i].name);
 		}
+
+		languages = Object.keys(languages);
+
+		starred = starred.filter(function(el){ return el != undefined});
+		watched = watched.filter(function(el){ return el != undefined});
+		languages = languages.filter(function(el){ return el != undefined})
 
 		graph.get(node.label).starred = starred;
 		graph.get(node.label).watched = watched;
+		graph.get(node.label).languages = languages; 
 
-		client.hmset(node.label, ["following", following.toString(), "starred", starred.toString(), "watched", watched.toString()], function (err, res) {
+		client.hmset(node.label, ["avatar", graph.get(node.label).avatar, "following", following.join(), "starred", starred.join(), "watched", watched.join(), "languages", languages.join()], function (err, res) {
 			if(err) return console.log(err);
 			client.expire(node.label, NODE_TTL*60, function(err, res){
 				if(err) return console.log(err);
