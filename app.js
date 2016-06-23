@@ -193,6 +193,23 @@ function fetchNode(nodes, graph, processed, next){
 
 }
 
+
+
+function getPagedRepos(err, res, data, callback) {
+    if (err) {
+		console.log(err);
+        return false;
+    }
+    data = data.concat(res);
+    if (github.hasNextPage(res)) {
+        github.getNextPage(res, function(err, res){
+			getPagedRepos(err, res, data, callback);
+		})
+    } else {
+        callback(null, data);
+    }
+}
+
 function buildNode(node, nodes, graph, next){
 
 	async.parallel({
@@ -208,21 +225,27 @@ function buildNode(node, nodes, graph, next){
 			});
 		},
 		starred: function(callback){
+			var starred = [];
 			github.activity.getStarredReposForUser({
 				user: node.label,
 				per_page: STARRED_PER_REQUEST
 			}, function(err, res){
-				if(err) console.log(err);
-				callback(null, res);
+				if(err) return console.log(err);
+
+				var starred = [];
+				getPagedRepos(err, res, starred, callback)
+
 			});
 		},
 		watched: function(callback){
-			github.activity.getStarredReposForUser({
+			github.activity.getWatchedReposForUser({
 				user: node.label,
 				per_page: WATCHED_PER_REQUEST
 			}, function(err, res){
-				if(err) console.log(err);
-				callback(null, res);
+				if(err) return console.log(err);
+
+				var watched = [];
+				getPagedRepos(err, res, watched, callback)
 			});
 		}
 	},
