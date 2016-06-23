@@ -2,7 +2,6 @@ var Helpers = {};
 
 Helpers.formatList = function(list){
     var str = '';
-    console.log(list);
     if(list.length == 0){
         str += ' - ';
     }else{

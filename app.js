@@ -64,6 +64,7 @@ passport.deserializeUser(function(user, done) {
 	done(null, user);
 });
 
+
 var github = new GitHubApi();
 
 app.get('/', function(req, res) {
@@ -122,17 +123,13 @@ var server = app.listen(3000, function () {
 
 server.timeout = 10*60*1000;
 
-var processed;
-
 function buildGraph(root, callback){
-  processed = {}
 
 	var graph = new Graph();
 
 	graph.tryAddNode(root, {
 		avatar: ''
 	});
-
 
 	var nodes = [
 		{
@@ -141,12 +138,14 @@ function buildGraph(root, callback){
 		}
 	];
 
+	var processed = {};
+
 	async.whilst(
 		function(){
 			return nodes.length > 0;
 		},
 		function(next){
-			fetchNode(nodes, graph, next);
+			fetchNode(nodes, graph, processed, next);
 		},
 		function(err){
 			callback(graph);
@@ -155,19 +154,20 @@ function buildGraph(root, callback){
 
 }
 
-function fetchNode(nodes, graph, next){
+function fetchNode(nodes, graph, processed, next){
 	var node = nodes.shift();
 
 	if(processed[node.label]) {
 		console.log("[SKIPPING] " + node.label);
 		return next();
 	}
-  processed[node.label] = true;
+	
+	processed[node.label] = true;
 
 	//console.log("[PROCESSING] " + node.label + " - " + node.level);
 
 	client.hgetall(node.label, function(err, reply){
-		if(reply){
+		if(reply){ // Node is in cache, load the data
 			var following = reply.following.split(',').filter(function(el) {return el.length != 0});;
 			if(node.level < MAX_ROOT_DISTANCE){
 				for(var i in following){
@@ -186,8 +186,7 @@ function fetchNode(nodes, graph, next){
 			graph.get(node.label).languages = reply.languages.split(',').filter(function(el) {return el.length != 0});
 			graph.get(node.label).avatar = reply.avatar;
 			next();
-		}else{
-      console.log("[BUILD]");
+		}else{ // Node is NOT in the cache, we have to build the node
 			buildNode(node, nodes, graph, next);
 		}
 	});
@@ -271,6 +270,7 @@ function buildNode(node, nodes, graph, next){
 		graph.get(node.label).watched = watched;
 		graph.get(node.label).languages = languages;
 
+		// Save node in the cache
 		client.hmset(node.label, ["avatar", graph.get(node.label).avatar, "following", following.join(), "starred", starred.join(), "watched", watched.join(), "languages", languages.join()], function (err, res) {
 			if(err) return console.log(err);
 			client.expire(node.label, NODE_TTL*60, function(err, res){
