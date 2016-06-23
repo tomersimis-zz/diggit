@@ -107,11 +107,14 @@ var server = app.listen(3000, function () {
 
 server.timeout = 10*60*1000;
 
+var processed;
+
 function buildGraph(root, callback){
+  processed = {}
 
 	var graph = new Graph();
-	
-	graph.addNode(root);
+
+	graph.tryAddNode(root);
 
 	var nodes = [
 		{
@@ -136,21 +139,23 @@ function buildGraph(root, callback){
 
 function fetchNode(nodes, graph, next){
 	var node = nodes.shift();
-	
-	if(graph.exists(node.label) && graph.get(node.label).adj.size > 0) {
+
+	if(processed[node.label]) {
 		console.log("[SKIPPING] " + node.label);
 		return next();
 	}
+  processed[node.label] = true;
 
 	console.log("[PROCESSING] " + node.label + " - " + node.level);
 
 	client.hgetall(node.label, function(err, reply){
 		if(reply){
+      console.log("[REPLY]");
 			var following = reply.following.split(',');
 			if(node.level < MAX_ROOT_DISTANCE){
 				for(var i in following){
 					if(!following[i] || following[i].length == 0) continue;
-					graph.addNode(following[i]);
+					graph.tryAddNode(following[i]);
 					graph.addEdge(node.label, following[i]);
 
 					nodes.push({
@@ -163,6 +168,7 @@ function fetchNode(nodes, graph, next){
 			graph.get(node.label).watched = reply.watched.split(',');
 			next();
 		}else{
+      console.log("[BUILD]");
 			buildNode(node, nodes, graph, next);
 		}
 	});
@@ -209,7 +215,7 @@ function buildNode(node, nodes, graph, next){
 				if(!results.following[i].login || results.following[i].login.length == 0) continue;
 
 				following.push(results.following[i].login);
-				graph.addNode(results.following[i].login);
+				graph.tryAddNode(results.following[i].login);
 				graph.addEdge(node.label, results.following[i].login);
 
 				nodes.push({

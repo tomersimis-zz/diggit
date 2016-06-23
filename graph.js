@@ -14,7 +14,8 @@ Graph.prototype.exists = function(label){
     return label in Object.keys(this.graph);
 }
 
-Graph.prototype.addNode = function(label, data){
+Graph.prototype.tryAddNode = function(label, data){
+    if(this.exists(label)) return;
     this.graph[label] = {
         label: label,
         adj: []
