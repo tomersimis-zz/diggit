@@ -2,6 +2,10 @@ function Graph(){
     this.graph = {};
 };
 
+Graph.prototype.existsEdge = function(node_a, node_b){
+    return this.graph[node_a].adj.indexOf(node_b) >= 0;
+}
+
 Graph.prototype.nodes = function(){
     return Object.keys(this.graph);
 }
@@ -11,11 +15,30 @@ Graph.prototype.get = function(label){
 }
 
 Graph.prototype.exists = function(label){
-    return label in Object.keys(this.graph);
+    return Object.keys(this.graph).indexOf(label) >= 0;
+}
+
+Graph.prototype.removeNodesBellow = function(level){
+    nodes = Object.keys(this.graph);
+    graph = this.graph;
+    for(var i = 0; i < nodes.length; i++){
+        this.graph[nodes[i]].adj = this.graph[nodes[i]].adj.filter(function(node){
+            if(node == 'rodrigoalvesvieira'){
+                console.log(graph[node]);
+            }
+            return graph[node].level < level;
+        });
+    }
+    for(var i = 0; i < nodes.length; i++){
+        if(this.graph[nodes[i]].level >= level){
+            delete this.graph[nodes[i]];
+        }
+    }
 }
 
 Graph.prototype.tryAddNode = function(label, data){
     if(this.exists(label)) return;
+    // console.log('adding to graph node: ' + label);
     this.graph[label] = {
         label: label,
         adj: [],

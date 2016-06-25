@@ -83,7 +83,7 @@ Recommendation.prepare = function(dict, root, graph){
 module.exports = Recommendation;
 
 //Test
-// var g = new Graph();	
+// var g = new Graph();
 // g.addNode("tomer", {starred: ['a', 'b', 'c'], watched: ['a', 'b', 'c']});
 // g.addNode("marlon", {starred: ['a', 'b', 'c', 'd'], watched: ['a', 'b', 'c', 'd']});
 // g.addNode("luiz", {starred: ['a', 'b'], watched: ['a', 'c']});
