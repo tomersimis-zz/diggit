@@ -49,6 +49,26 @@
     font: 300 24px "Open Sans";
     color: #777;
     margin-bottom: 20px;
+    float: left;
+}
+
+#results-config a:hover{
+    text-decoration: none;
+}
+
+#results-config a{
+    float:right;
+    padding: 28px 20px 20px 20px;
+    color: #555;
+    font-size: 12px;
+}
+
+#results-config a.selected{
+    background: #fa6153;
+    border-radius: 20px;
+    margin: 18px 10px 10px 10px;
+    padding: 10px 20px;
+    color: #fff;
 }
 
 .result{
@@ -144,16 +164,16 @@
     cursor: pointer;
 }
 
-.recommendation:hover{
-    background-color: #555;
-    box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
-    cursor: pointer;
+#loading{
+    width: 100%;
+    position: fixed;
+    border-radius: 0px;
+    z-index: 1000;
 }
 
-#loading{
-    width: 10%;
-    left: 45%; 
-    position: fixed;
+
+#loading .active{
+    background-color: #d65248;
 }
 
 .arrow{
