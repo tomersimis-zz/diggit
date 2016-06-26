@@ -22,6 +22,11 @@
     <![endif]-->
   </head>
   <body>
+    <div id="loading" class="progress hidden">
+      <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+        <span style="font-size: 14px;">Loading</span>
+      </div>
+    </div>
     <header class="container-fluid" id="header">
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
@@ -31,71 +36,83 @@
                 <h1>Discover new people to follow on GitHub based on <br />common interests</h1>
 
                 {{#if user}}
-                  <h2>Hello, {{ user.displayName }}</h2>
+                  <h2>Hello, {{ user.username }}</h2>
                   <a href="/logout/" id="signout">Sign out</a>
+            </div>
+            <div class="col-md-6 col-md-offset-3">
+              <h1>Recommendation Metric</h1>
+                <h2 data-metric="triadic" class="recommendation">Triadic</h2>
+                  <h2 data-metric="localpath" class="recommendation">Local Path</h2>
+            </div>
                 {{else}}
                   <a href="/auth/">Sign in with <strong>GitHub</strong></a>
                 {{/if}}
             </div>
         </div>
+        {{#if user}}
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                
+            </div>
+        </div>
+        {{/if}}
     </header>
+    <div id="result-recommendation">
+      <nav id="results-config">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-12">
+              <h2>Showing <strong id="count-users">{{count}}</strong> users</h2>
+          </div>
+        </div>
+      </nav>
 
-    <nav id="results-config">
       <div class="container">
         <div class="row">
-          <div class="col-md-12">
-            <h2>Showing <strong>{{count}}</strong> users</h2>
+          <div id="cnt-results" class="col-md-12">
+            {{#each lpResult}}
+              <div class="result">
+                <div class="result-header">
+                  <img src="{{avatar}}&s=140" />
+                  <h1>{{login}}</h1> 
+                  <h2><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Recife - Brazil</h2>
+                  <span class="result-score">
+                    {{ score }}
+                  </span>
+                </div>
+
+                <div class="result-body">
+                  <p>
+                    <strong><span class="glyphicon glyphicon-star" aria-hidden="true"></span> Starred Repositories</strong>
+                      {{commonStarred}}
+                  </p>
+                  <p>
+                    <strong><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Watched Repositories</strong>
+                      {{commonWatched}}
+                  </p>
+                  <p>
+                    <strong><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Languages</strong>
+                      {{commonLanguages}}
+                  </p>
+                </div>
+
+                <div class="result-footer">
+                  <div class="result-follower">
+                    <span class="you">YOU</span>
+                    {{#each pre}}
+                        <span class="arrow"></span>
+                        <a href="#"><img src="{{ pavatar }}" /></a>
+                    {{/each}}
+                  </div>
+                
+                    <a class="github-button" href="https://github.com/{{login}}" data-style="mega" data-count-href="/{{login}}/followers" data-count-api="/users/{{login}}#followers" data-count-aria-label="# followers on GitHub" aria-label="Follow @{{login}} on GitHub">Follow @{{login}}</a>
+                </div>
+              </div>
+            {{/each}}
           </div>
         </div>
       </div>
-    </nav>
-
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12">
-          {{#each lpResult}}
-            <div class="result">
-              <div class="result-header">
-                <img src="{{avatar}}&s=140" />
-                <h1>{{login}}</h1> 
-                <h2><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Recife - Brazil</h2>
-                <span class="result-score">
-                  {{ score }}
-                </span>
-              </div>
-
-              <div class="result-body">
-                <p>
-                  <strong><span class="glyphicon glyphicon-star" aria-hidden="true"></span> Starred Repositories</strong>
-                    {{commonStarred}}
-                </p>
-                <p>
-                  <strong><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Watched Repositories</strong>
-                    {{commonWatched}}
-                </p>
-                <p>
-                  <strong><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Languages</strong>
-                    {{commonLanguages}}
-                </p>
-              </div>
-
-              <div class="result-footer">
-                <div class="result-follower">
-                  <span class="you">YOU</span>
-                  <span class="arrow"></span>
-                  <a href="#"><img src="https://avatars0.githubusercontent.com/u/936421?v=3&s=460" /></a>
-                  <span class="arrow"></span>
-                  <a href="#"><img src="https://avatars2.githubusercontent.com/u/518217?v=3&s=140" /></a>
-                </div>
-              
-                  <a class="github-button" href="https://github.com/{{login}}" data-style="mega" data-count-href="/{{login}}/followers" data-count-api="/users/{{login}}#followers" data-count-aria-label="# followers on GitHub" aria-label="Follow @{{login}} on GitHub">Follow @{{login}}</a>
-              </div>
-
-            </div>
-          {{/each}}
-        </div>
-      </div>
-    </div>
+   </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -105,6 +122,26 @@
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+    <script type="text/javascript">
+
+        function ajax_request(metric)
+        {
+            $("#loading").removeClass("hidden");
+            $("#result-recommendation").load("/?metric="+metric, function(response, status, xhr ) {
+                  $("#loading").addClass("hidden");
+
+            });
+        }
+
+        $(document).ready(function(){
+            $(".recommendation").on("click", function(){
+                $(".recommendation").removeClass("active");
+                $(this).addClass("active");
+                ajax_request($(this).attr("data-metric"));
+            });
+        });
+    </script>
 
   </body>
 </html>

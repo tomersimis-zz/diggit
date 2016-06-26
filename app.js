@@ -83,14 +83,13 @@ function useTriadicMetric(){
 }
 
 
-
-
-
 app.get('/', function(req, res) {
 
 	if(req.user){
         if(req.query.metric != LOCAL_PATH_METRIC && req.query.metric != TRIADIC_METRIC){
-            res.render('index');
+            res.render('index', {
+            	user: req.user
+            });
         }
         else {
     		buildGraph(req.user.username, function(graph){
@@ -104,11 +103,25 @@ app.get('/', function(req, res) {
         			results = Recommendation.prepare(lp, req.user.username, graph);
                 }
 
-                res.render('index', {
-    				count: results.length,
-    				user: req.user,
-    				lpResult: results
-    			});
+                if(req.xhr) {
+                	/*res.json({
+	    				count: results.length,
+	    				user: req.user,
+	    				lpResult: results
+	    			});*/
+    		 		res.render('container', {
+	    				count: results.length,
+	    				user: req.user,
+	    				lpResult: results
+	    			});
+                }
+                else {
+	                res.render('index', {
+	    				count: results.length,
+	    				user: req.user,
+	    				lpResult: results
+	    			});
+            	}
     		});
         }
 	}else{
@@ -202,6 +215,7 @@ function fetchNode(nodes, graph, processed, next){
 			graph.get(node.label).watched = reply.watched.split(',').filter(function(el) {return el.length != 0});
 			graph.get(node.label).languages = reply.languages.split(',').filter(function(el) {return el.length != 0});
 			graph.get(node.label).avatar = reply.avatar;
+			//graph.get(node.label).location = reply.location;
             graph.get(node.label).followers_count = reply.followers_count;
             graph.get(node.label).level = reply.level;
 			next();
@@ -247,7 +261,7 @@ function buildNode(node, nodes, graph, next){
 			});
 		},
 		watched: function(callback){
-			github.activity.getStarredReposForUser({
+			github.activity.getWatchedReposForUser({
 				user: node.label,
 				per_page: WATCHED_PER_REQUEST
 			}, function(err, res){
@@ -265,7 +279,8 @@ function buildNode(node, nodes, graph, next){
 				following.push(results.following[i].login);
 
 				graph.tryAddNode(results.following[i].login, {
-					avatar: results.following[i].avatar_url
+					avatar: results.following[i].avatar_url,
+					//location: results.following[i].location
 				});
 
 				graph.addEdge(node.label, results.following[i].login);
@@ -280,12 +295,14 @@ function buildNode(node, nodes, graph, next){
 
 		var starred = [];
 		var languages = {};
+
 		for(var i in results.starred){
 			languages[results.starred[i].language] = true;
 			starred.push(results.starred[i].name);
 		}
 
 		var watched = [];
+		
 		for(var i in results.watched){
 			languages[results.watched[i].language] = true;
 			watched.push(results.watched[i].name);
@@ -295,7 +312,7 @@ function buildNode(node, nodes, graph, next){
 
 		starred = starred.filter(function(el){ return el != undefined});
 		watched = watched.filter(function(el){ return el != undefined});
-		languages = languages.filter(function(el){ return el != undefined})
+		languages = languages.filter(function(el){ return el != undefined && el != 'undefined'})
 
 		graph.get(node.label).starred = starred;
 		graph.get(node.label).watched = watched;
@@ -312,4 +329,3 @@ function buildNode(node, nodes, graph, next){
 		});
 	});
 }
-1

@@ -174,10 +174,12 @@ Triadic.getRecommendations = function(node){
     recommend_list.sort(function(first, second){
         return second[0] - first[0];
     });
+
     return recommend_list.map(function(curr){
         return {
             login: curr[1],
             avatar: graph.get(curr[1]).avatar,
+            pre: graph.get(curr[1]).pre.map(function(p){ return { pavatar: graph.get(p).avatar } }),
             score: curr[0].toFixed(2),
             commonStarred: Helpers.formatList(_.intersection(graph.get(curr[1]).starred, graph.get(node).starred)),
             commonWatched: Helpers.formatList(_.intersection(graph.get(curr[1]).watched, graph.get(node).watched)),
