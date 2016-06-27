@@ -83,7 +83,9 @@
         }
 
         $(document).ready(function(){
+            {{#if user}}
             ajax_request('triadic');
+            {{/if}}
         });
     </script>
 
