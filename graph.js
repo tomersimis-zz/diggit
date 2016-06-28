@@ -92,6 +92,23 @@ Graph.prototype.addEdge = function(from, to){
         this.graph[to].pre.push(from);
 }
 
+Graph.prototype.path = function(from, to){
+    path = [];
+    cur = from;
+    while(cur != to){
+        path.unshift(cur);
+        if(this.graph[cur].pre.length > 0)
+            cur = this.graph[cur].pre[0];
+        else{
+            console.log("Path not exist from: " + from + " to: " + to );
+            return;
+        }
+
+    }
+    path.unshift(to);
+    return path;
+}
+
 Graph.prototype.numberOfNodes = function(){
     return Object.keys(this.graph).length
 }

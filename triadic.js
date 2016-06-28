@@ -153,8 +153,8 @@ Triadic.getRecommendations = function(node){
     });
     max_score = (recommend_list.length > 0) ? recommend_list[0][0] : 1;
     return recommend_list.map(function(curr){
-        var pre = graph.get(curr[1]).pre;
-        pre.push(curr[1]);
+        var pre = graph.path(curr[1], node);
+        path.shift();
         return {
             login: curr[1],
             avatar: graph.get(curr[1]).avatar,

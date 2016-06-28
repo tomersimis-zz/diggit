@@ -69,10 +69,12 @@ Recommendation.prepare = function(dict, root, graph){
     });
 
     return items.map(function(item){
+    	var pre = graph.path(item[0], root);
+        path.shift();
         return {
             login: item[0],
             avatar: graph.get(item[0]).avatar,
-            pre: graph.get(item[0]).pre.map(function(p){ return { pavatar: graph.get(p).avatar } }),
+            pre: pre.map(function(p){ return { pavatar: graph.get(p).avatar } }),
             score: Recommendation.mapScore(item[1], items[0][1]).toFixed(2),
             commonStarred: Helpers.formatList(_.intersection(graph.get(item[0]).starred, graph.get(root).starred)),
             commonWatched: Helpers.formatList(_.intersection(graph.get(item[0]).watched, graph.get(root).watched)),
