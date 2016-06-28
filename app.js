@@ -173,7 +173,9 @@ function buildGraph(root, callback){
         level: 0,
         transitive_count: 0
 	});
+
     processed = {root: true};
+
 	var nodes = [
 		{
 			label: root,
@@ -197,12 +199,7 @@ function buildGraph(root, callback){
 
 function fetchNode(nodes, graph, next){
 	var node = nodes.shift();
-
-	if(processed[node.label]) {
-		console.log("[SKIPPING] " + node.label);
-		return next();
-	}
-
+    // console.log('node:' + node.label + ' processed: ' +processed[node.label] );
 
     console.log("[PROCESSING] " + node.label + " - " + node.level);
 
