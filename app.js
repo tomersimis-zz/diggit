@@ -162,6 +162,8 @@ server.timeout = 10*60*1000;
 
 var root_node;
 
+var processed;
+
 function buildGraph(root, callback){
 
 	var graph = new Graph();
@@ -171,7 +173,7 @@ function buildGraph(root, callback){
         level: 0,
         transitive_count: 0
 	});
-
+    processed = {root: true};
 	var nodes = [
 		{
 			label: root,
@@ -179,14 +181,12 @@ function buildGraph(root, callback){
 		}
 	];
 
-	var processed = {};
-
 	async.whilst(
 		function(){
 			return nodes.length > 0;
 		},
 		function(next){
-			fetchNode(nodes, graph, processed, next);
+			fetchNode(nodes, graph, next);
 		},
 		function(err){
 			callback(graph);
@@ -195,14 +195,14 @@ function buildGraph(root, callback){
 
 }
 
-function fetchNode(nodes, graph, processed, next){
+function fetchNode(nodes, graph, next){
 	var node = nodes.shift();
 
 	if(processed[node.label]) {
 		console.log("[SKIPPING] " + node.label);
 		return next();
 	}
-	processed[node.label] = true;
+
 
     console.log("[PROCESSING] " + node.label + " - " + node.level);
 
@@ -211,7 +211,8 @@ function fetchNode(nodes, graph, processed, next){
 			var following = Helpers.clean(reply.following.split(','));
 			if(node.level < MAX_ROOT_DISTANCE){
 				for(var i=0; i < following.length; i++){
-					if(!following[i] || following[i].length == 0) continue;
+					if(!following[i] || following[i].length == 0 || processed[following[i]]) continue;
+                    processed[following[i]] = true;
                     graph.tryAddNode(following[i], {
                         level: node.level+1
     				});
@@ -289,6 +290,8 @@ function buildNode(node, nodes, graph, next){
 		if(node.level < MAX_ROOT_DISTANCE){
 			for(var i = 0; i < results.following.length; i++){
 				if(!results.following[i].login || results.following[i].login.length == 0) continue;
+                if(processed[results.following[i].login]) continue;
+                processed[results.following[i].login] = true;
 				following.push(results.following[i].login);
 
 				graph.tryAddNode(results.following[i].login, {
