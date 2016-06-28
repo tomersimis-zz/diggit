@@ -9,8 +9,9 @@ var _ = require('lodash');
 var Graph = require('./graph.js');
 var Recommendation = require('./recommendation.js');
 var Triadic = require('./triadic.js');
-// Express
+var Helpers = require('./helpers.js');
 
+// Express
 var app = express();
 
 /*
@@ -207,7 +208,7 @@ function fetchNode(nodes, graph, processed, next){
 
 	client.hgetall(node.label, function(err, reply){
 		if(reply){ // Node is in cache, load the data
-			var following = reply.following.split(',').filter(function(el) {return el.length != 0});
+			var following = Helpers.clean(reply.following.split(','));
 			if(node.level < MAX_ROOT_DISTANCE){
 				for(var i=0; i < following.length; i++){
 					if(!following[i] || following[i].length == 0) continue;
@@ -224,11 +225,10 @@ function fetchNode(nodes, graph, processed, next){
 					});
 				}
 			}
-			graph.get(node.label).starred = reply.starred.split(',').filter(function(el) {return el.length != 0});
-			graph.get(node.label).watched = reply.watched.split(',').filter(function(el) {return el.length != 0});
-			graph.get(node.label).languages = reply.languages.split(',').filter(function(el) {return el.length != 0});
+			graph.get(node.label).starred = Helpers.clean(reply.starred.split(','));
+			graph.get(node.label).watched = Helpers.clean(reply.watched.split(','));
+			graph.get(node.label).languages = Helpers.clean(reply.languages.split(','));
 			graph.get(node.label).avatar = reply.avatar;
-			//graph.get(node.label).location = reply.location;
             graph.get(node.label).followers_count = reply.followers_count;
 
 			next();
@@ -294,7 +294,6 @@ function buildNode(node, nodes, graph, next){
 				graph.tryAddNode(results.following[i].login, {
 					avatar: results.following[i].avatar_url,
                     level: node.level+1,
-					//location: results.following[i].location
 				});
 
                 if(node.label != root_node && graph.get(root_node).adj.indexOf(node.label) >= 0){
@@ -327,9 +326,9 @@ function buildNode(node, nodes, graph, next){
 
 		languages = Object.keys(languages);
 
-		starred = starred.filter(function(el){ return el != undefined});
-		watched = watched.filter(function(el){ return el != undefined});
-		languages = languages.filter(function(el){ return el != undefined && el != 'undefined'})
+		starred = Helpers.clean(starred);
+		watched = Helpers.clean(watched);
+		languages = Helpers.clean(languages);
 		graph.get(node.label).starred = starred;
 		graph.get(node.label).watched = watched;
 		graph.get(node.label).languages = languages;

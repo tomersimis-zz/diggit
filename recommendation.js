@@ -78,9 +78,12 @@ Recommendation.prepare = function(dict, root, graph){
             score: Recommendation.mapScore(item[1], items[0][1]).toFixed(2),
             commonStarred: Helpers.formatList(_.intersection(graph.get(item[0]).starred, graph.get(root).starred)),
             commonWatched: Helpers.formatList(_.intersection(graph.get(item[0]).watched, graph.get(root).watched)),
-            commonLanguages: Helpers.formatList(_.intersection(graph.get(item[0]).languages, graph.get(root).languages))
+            commonLanguages: Helpers.formatList(_.intersection(graph.get(item[0]).languages, graph.get(root).languages)),
+			followers_count: graph.get(item[0]).followers_count
         }
-    });
+    }).filter(function(el){
+		return el.score > 0;
+	});
 }
 
 module.exports = Recommendation;

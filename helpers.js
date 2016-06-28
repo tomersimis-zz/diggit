@@ -12,4 +12,12 @@ Helpers.formatList = function(list){
     return str;
 }
 
+Helpers.clean = function(list){
+    var clean = [];
+    for(var i=0; i < list.length; i++){
+        if(list[i] && list[i] != 'undefined' && list[i] != 'null' && list[i].length > 0) clean.push(list[i]);
+    }
+    return clean;
+}
+
 module.exports = Helpers;
