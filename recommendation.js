@@ -8,8 +8,15 @@ Recommendation.getWeight = function(starred1, watched1, languages1, starred2, wa
 	var starred = _.intersection(starred1, starred2).length/_.union(starred1, starred2).length;
 	var watched = _.intersection(watched1, watched2).length/_.union(watched1, watched2).length;
     var languages = _.intersection(languages1, languages2).length/_.union(languages1, languages2).length;
-	return starred*watched*languages;
+	return (4*starred + 6*watched + languages)/11;
 }
+
+// Recommendation.getWeight = function(starred1, watched1, languages1, starred2, watched2, languages2){
+// 	var starred = 2*_.intersection(starred1, starred2).length/(2*_.intersection(starred1, starred2).length + _.difference(starred1, starred2) + _.difference(starred2, starred1));
+// 	var watched = 2*_.intersection(watched1, watched2).length/(2*_.intersection(watched1, watched2).length + _.difference(watched1, watched2) + _.difference(watched2, watched1));
+//     var languages = 2*_.intersection(languages1, languages2).length/(2*_.intersection(languages1, languages2).length + _.difference(languages1, languages2) + _.difference(languages2, languages1));
+// 	return starred*watched*languages;
+// }
 
 Recommendation.mapScore = function(score, max){
     return 5.0*score/max;
@@ -68,10 +75,12 @@ Recommendation.prepare = function(dict, root, graph){
         return second[1] - first[1];
     });
 
-    return items.map(function(item){
+	var i = 1;
+    return _.take(items.map(function(item){
     	var pre = graph.path(item[0], root);
         path.shift();
         return {
+			index: i++,
             login: item[0],
             avatar: graph.get(item[0]).avatar,
             pre: pre.map(function(p){ return { pavatar: graph.get(p).avatar } }),
@@ -79,11 +88,12 @@ Recommendation.prepare = function(dict, root, graph){
             commonStarred: Helpers.formatList(_.intersection(graph.get(item[0]).starred, graph.get(root).starred)),
             commonWatched: Helpers.formatList(_.intersection(graph.get(item[0]).watched, graph.get(root).watched)),
             commonLanguages: Helpers.formatList(_.intersection(graph.get(item[0]).languages, graph.get(root).languages)),
-			followers_count: graph.get(item[0]).followers_count
+			followers_count: graph.get(item[0]).followers_count,
+			auto: true
         }
     }).filter(function(el){
 		return el.score > 0;
-	});
+	}), 20);
 }
 
 module.exports = Recommendation;

@@ -111,6 +111,78 @@ app.get('/', function(req, res) {
         			results = Recommendation.prepare(lp, req.user.username, graph);
                 }
 
+				var newUser = false;
+
+				if(results <= 5){
+					newUser = true;
+					results.push({
+						index: 1,
+						login: 'GrahamCampbell',
+						avatar: 'https://avatars1.githubusercontent.com/u/2829600?v=3',
+						pre: [],
+						score: '1',
+						commonStarred: [],
+						commonWatched: [],
+						commonLanguages: [],
+						auto: false
+					});
+					results.push({
+						index: 1,
+						login: 'josh',
+						avatar: 'https://avatars2.githubusercontent.com/u/137?v=3',
+						pre: [],
+						score: '2',
+						commonStarred: [],
+						commonWatched: [],
+						commonLanguages: [],
+						auto: false
+					});
+					results.push({
+						index: 1,
+						login: 'rkh',
+						avatar: 'https://avatars2.githubusercontent.com/u/30442?v=3',
+						pre: [],
+						score: '3',
+						commonStarred: [],
+						commonWatched: [],
+						commonLanguages: [],
+						auto: false
+					});
+					results.push({
+						index: 1,
+						login: 'SamyPesse',
+						avatar: 'https://avatars2.githubusercontent.com/u/845425?v=3',
+						pre: [],
+						score: '4',
+						commonStarred: [],
+						commonWatched: [],
+						commonLanguages: [],
+						auto: false
+					});
+					results.push({
+						index: 1,
+						login: 'fabpot',
+						avatar: 'https://avatars0.githubusercontent.com/u/47313?v=3',
+						pre: [],
+						score: '5',
+						commonStarred: [],
+						commonWatched: [],
+						commonLanguages: [],
+						auto: false
+					});
+					results.push({
+						index: 1,
+						login: 'tmm1',
+						avatar: 'https://avatars0.githubusercontent.com/u/2567?v=3',
+						pre: [],
+						score: '6',
+						commonStarred: [],
+						commonWatched: [],
+						commonLanguages: [],
+						auto: false
+					});
+				}
+
                 if(req.xhr) {
                 	/*res.json({
 	    				count: results.length,
@@ -120,14 +192,16 @@ app.get('/', function(req, res) {
     		 		res.render('container', {
 	    				count: results.length,
 	    				user: req.user,
-	    				lpResult: results
+	    				lpResult: results,
+						newUser: newUser
 	    			});
                 }
                 else {
 	                res.render('index', {
 	    				count: results.length,
 	    				user: req.user,
-	    				lpResult: results
+	    				lpResult: results,
+						newUser: newUser
 	    			});
             	}
     		});
@@ -160,21 +234,15 @@ var server = app.listen(3000, function () {
 
 server.timeout = 10*60*1000;
 
-var root_node;
-
-var processed;
-
 function buildGraph(root, callback){
 
 	var graph = new Graph();
-    root_node = root;
+
 	graph.tryAddNode(root, {
 		avatar: '',
         level: 0,
         transitive_count: 0
 	});
-
-    processed = {root: true};
 
 	var nodes = [
 		{
@@ -183,12 +251,14 @@ function buildGraph(root, callback){
 		}
 	];
 
+	var processed = {};
+
 	async.whilst(
 		function(){
 			return nodes.length > 0;
 		},
 		function(next){
-			fetchNode(nodes, graph, next);
+			fetchNode(nodes, graph, processed, root, next);
 		},
 		function(err){
 			callback(graph);
@@ -197,9 +267,14 @@ function buildGraph(root, callback){
 
 }
 
-function fetchNode(nodes, graph, next){
+function fetchNode(nodes, graph, processed, root_node, next){
 	var node = nodes.shift();
-    // console.log('node:' + node.label + ' processed: ' +processed[node.label] );
+
+	if(processed[node.label]) {
+		console.log("[SKIPPING] " + node.label);
+		return next();
+	}
+	processed[node.label] = true;
 
     console.log("[PROCESSING] " + node.label + " - " + node.level);
 
@@ -208,8 +283,7 @@ function fetchNode(nodes, graph, next){
 			var following = Helpers.clean(reply.following.split(','));
 			if(node.level < MAX_ROOT_DISTANCE){
 				for(var i=0; i < following.length; i++){
-					if(!following[i] || following[i].length == 0 || processed[following[i]]) continue;
-                    processed[following[i]] = true;
+					if(!following[i] || following[i].length == 0) continue;
                     graph.tryAddNode(following[i], {
                         level: node.level+1
     				});
@@ -231,13 +305,13 @@ function fetchNode(nodes, graph, next){
 
 			next();
 		}else{ // Node is NOT in the cache, we have to build the node
-			buildNode(node, nodes, graph, next);
+			buildNode(node, nodes, graph, root_node, next);
 		}
 	});
 
 }
 
-function buildNode(node, nodes, graph, next){
+function buildNode(node, nodes, graph, root_node, next){
 
 	async.parallel({
         followers: function(callback){
@@ -287,8 +361,6 @@ function buildNode(node, nodes, graph, next){
 		if(node.level < MAX_ROOT_DISTANCE){
 			for(var i = 0; i < results.following.length; i++){
 				if(!results.following[i].login || results.following[i].login.length == 0) continue;
-                if(processed[results.following[i].login]) continue;
-                processed[results.following[i].login] = true;
 				following.push(results.following[i].login);
 
 				graph.tryAddNode(results.following[i].login, {
@@ -333,6 +405,8 @@ function buildNode(node, nodes, graph, next){
 		graph.get(node.label).watched = watched;
 		graph.get(node.label).languages = languages;
         graph.get(node.label).followers_count = results.followers.length;
+
+		if(!graph.get(node.label).avatar) graph.get(node.label).avatar = 'https://i2.wp.com/assets-cdn.github.com/images/gravatars/gravatar-user-420.png?ssl=1';
 
 		// Save node in the cache
 		client.hmset(node.label, ["avatar", graph.get(node.label).avatar, "following", following.join(), "starred", starred.join(), "watched", watched.join(), "languages", languages.join(), "followers_count", graph.get(node.label).followers_count], function (err, res) {

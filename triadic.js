@@ -163,7 +163,8 @@ Triadic.getRecommendations = function(node){
             commonStarred: Helpers.formatList(_.intersection(graph.get(curr[1]).starred, graph.get(node).starred)),
             commonWatched: Helpers.formatList(_.intersection(graph.get(curr[1]).watched, graph.get(node).watched)),
             commonLanguages: Helpers.formatList(_.intersection(graph.get(curr[1]).languages, graph.get(node).languages)),
-            followers_count: graph.get(curr[1]).followers_count
+            followers_count: graph.get(curr[1]).followers_count,
+            auto: true
         }
     });
 }
