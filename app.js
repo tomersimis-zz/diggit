@@ -20,7 +20,7 @@ USERS_PER_REQUEST = 4;
 FOLLOWERS_USERS_PER_REQUEST = 0;
 */
 // Constants
-const MAX_ROOT_DISTANCE = 3; // starts at 0
+const MAX_ROOT_DISTANCE = 4; // starts at 0
 const NODE_TTL = 90000; // time to keep node cache (in minutes)
 const USERS_PER_REQUEST = 20;
 const LP_USERS_PER_REQUEST = 4;
@@ -35,6 +35,10 @@ app.set('views', __dirname + '/views')
 
 // Static files configuration
 app.use(express.static('public'));
+// app.use(express.static('bower_components'));
+
+var path = require('path')
+app.use('/bower_components', express.static(path.join(__dirname, 'bower_components')))
 
 // Request configuration
 app.use(require('body-parser').urlencoded({ extended: true }));
@@ -99,117 +103,119 @@ app.get('/', function(req, res) {
             });
         }
         else {
+        d1 = Date.now()
     		buildGraph(req.user.username, function(graph){
                 var results;
-
+                d2 = Date.now()
+                console.log("TOTAL TIME: " + (d2-d1)/1000)
                 if(req.query.metric == TRIADIC_METRIC){
                     Triadic.build(graph);
                     results = Triadic.getRecommendations(req.user.username);
                 }
                 else if(req.query.metric == LOCAL_PATH_METRIC){
                     var lp = Recommendation.localPath(req.user.username, graph);
-        			results = Recommendation.prepare(lp, req.user.username, graph);
+        			      results = Recommendation.prepare(lp, req.user.username, graph);
                 }
 
-				var newUser = false;
+      				var newUser = false;
 
-				if(results <= 5){
-					newUser = true;
-					results.push({
-						index: 1,
-						login: 'GrahamCampbell',
-						avatar: 'https://avatars1.githubusercontent.com/u/2829600?v=3',
-						pre: [],
-						score: '1',
-						commonStarred: [],
-						commonWatched: [],
-						commonLanguages: [],
-						auto: false
-					});
-					results.push({
-						index: 1,
-						login: 'josh',
-						avatar: 'https://avatars2.githubusercontent.com/u/137?v=3',
-						pre: [],
-						score: '2',
-						commonStarred: [],
-						commonWatched: [],
-						commonLanguages: [],
-						auto: false
-					});
-					results.push({
-						index: 1,
-						login: 'rkh',
-						avatar: 'https://avatars2.githubusercontent.com/u/30442?v=3',
-						pre: [],
-						score: '3',
-						commonStarred: [],
-						commonWatched: [],
-						commonLanguages: [],
-						auto: false
-					});
-					results.push({
-						index: 1,
-						login: 'SamyPesse',
-						avatar: 'https://avatars2.githubusercontent.com/u/845425?v=3',
-						pre: [],
-						score: '4',
-						commonStarred: [],
-						commonWatched: [],
-						commonLanguages: [],
-						auto: false
-					});
-					results.push({
-						index: 1,
-						login: 'fabpot',
-						avatar: 'https://avatars0.githubusercontent.com/u/47313?v=3',
-						pre: [],
-						score: '5',
-						commonStarred: [],
-						commonWatched: [],
-						commonLanguages: [],
-						auto: false
-					});
-					results.push({
-						index: 1,
-						login: 'tmm1',
-						avatar: 'https://avatars0.githubusercontent.com/u/2567?v=3',
-						pre: [],
-						score: '6',
-						commonStarred: [],
-						commonWatched: [],
-						commonLanguages: [],
-						auto: false
-					});
-				}
+      				if(results <= 5){
+      					newUser = true;
+      					results.push({
+      						index: 1,
+      						login: 'GrahamCampbell',
+      						avatar: 'https://avatars1.githubusercontent.com/u/2829600?v=3',
+      						pre: [],
+      						score: '1',
+      						commonStarred: [],
+      						commonWatched: [],
+      						commonLanguages: [],
+      						auto: false
+      					});
+      					results.push({
+      						index: 1,
+      						login: 'josh',
+      						avatar: 'https://avatars2.githubusercontent.com/u/137?v=3',
+      						pre: [],
+      						score: '2',
+      						commonStarred: [],
+      						commonWatched: [],
+      						commonLanguages: [],
+      						auto: false
+      					});
+      					results.push({
+      						index: 1,
+      						login: 'rkh',
+      						avatar: 'https://avatars2.githubusercontent.com/u/30442?v=3',
+      						pre: [],
+      						score: '3',
+      						commonStarred: [],
+      						commonWatched: [],
+      						commonLanguages: [],
+      						auto: false
+      					});
+      					results.push({
+      						index: 1,
+      						login: 'SamyPesse',
+      						avatar: 'https://avatars2.githubusercontent.com/u/845425?v=3',
+      						pre: [],
+      						score: '4',
+      						commonStarred: [],
+      						commonWatched: [],
+      						commonLanguages: [],
+      						auto: false
+      					});
+      					results.push({
+      						index: 1,
+      						login: 'fabpot',
+      						avatar: 'https://avatars0.githubusercontent.com/u/47313?v=3',
+      						pre: [],
+      						score: '5',
+      						commonStarred: [],
+      						commonWatched: [],
+      						commonLanguages: [],
+      						auto: false
+      					});
+      					results.push({
+      						index: 1,
+      						login: 'tmm1',
+      						avatar: 'https://avatars0.githubusercontent.com/u/2567?v=3',
+      						pre: [],
+      						score: '6',
+      						commonStarred: [],
+      						commonWatched: [],
+      						commonLanguages: [],
+      						auto: false
+      					});
+      				}
 
-                if(req.xhr) {
-                	/*res.json({
-	    				count: results.length,
-	    				user: req.user,
-	    				lpResult: results
-	    			});*/
-    		 		res.render('container', {
-	    				count: results.length,
-	    				user: req.user,
-	    				lpResult: results,
-						newUser: newUser
-	    			});
-                }
-                else {
-	                res.render('index', {
-	    				count: results.length,
-	    				user: req.user,
-	    				lpResult: results,
-						newUser: newUser
-	    			});
-            	}
-    		});
+                      if(req.xhr) {
+                      	/*res.json({
+      	    				count: results.length,
+      	    				user: req.user,
+      	    				lpResult: results
+      	    			});*/
+          		 		res.render('container', {
+      	    				count: results.length,
+      	    				user: req.user,
+      	    				lpResult: results,
+      						  newUser: newUser
+      	    			});
+                      }
+                      else {
+      	                res.render('index', {
+      	    				count: results.length,
+      	    				user: req.user,
+      	    				lpResult: results,
+      						newUser: newUser
+      	    			});
+                  	}
+          		});
         }
 	}else{
 		res.render('index');
+    console.log("fudeu pai");
 	}
-
 });
 
 app.get('/logout', function(req, res){
@@ -237,6 +243,12 @@ server.timeout = 10*60*1000;
 function buildGraph(root, callback){
 
 	var graph = new Graph();
+
+
+
+
+
+
 
 	graph.tryAddNode(root, {
 		avatar: '',
@@ -270,11 +282,15 @@ function buildGraph(root, callback){
 function fetchNode(nodes, graph, processed, root_node, next){
 	var node = nodes.shift();
 
+
+
 	if(processed[node.label]) {
 		console.log("[SKIPPING] " + node.label);
 		return next();
 	}
 	processed[node.label] = true;
+
+
 
     console.log("[PROCESSING] " + node.label + " - " + node.level);
 
@@ -284,13 +300,14 @@ function fetchNode(nodes, graph, processed, root_node, next){
 			if(node.level < MAX_ROOT_DISTANCE){
 				for(var i=0; i < following.length; i++){
 					if(!following[i] || following[i].length == 0) continue;
-                    graph.tryAddNode(following[i], {
-                        level: node.level+1
-    				});
+          graph.tryAddNode(following[i], {
+              level: node.level+1
+    			});
 					graph.addEdge(node.label, following[i]);
-                    if(node.label != root_node && graph.get(root_node).adj.indexOf(node.label) >= 0){
-                        graph.get(following[i]).transitive_count++;
-                    }
+
+          if(node.label != root_node && graph.get(root_node).adj.indexOf(node.label) >= 0){
+              graph.get(following[i]).transitive_count++;
+          }
 					nodes.push({
 						label: following[i],
 						level: node.level + 1
@@ -301,7 +318,7 @@ function fetchNode(nodes, graph, processed, root_node, next){
 			graph.get(node.label).watched = Helpers.clean(reply.watched.split(','));
 			graph.get(node.label).languages = Helpers.clean(reply.languages.split(','));
 			graph.get(node.label).avatar = reply.avatar;
-            graph.get(node.label).followers_count = reply.followers_count;
+      graph.get(node.label).followers_count = reply.followers_count;
 
 			next();
 		}else{ // Node is NOT in the cache, we have to build the node
@@ -316,6 +333,7 @@ function buildNode(node, nodes, graph, root_node, next){
 	async.parallel({
         followers: function(callback){
 			if(node.level >= MAX_ROOT_DISTANCE) return callback(null, []);
+
 
 			github.users.getFollowersForUser({
 				user: node.label,

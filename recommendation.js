@@ -33,7 +33,7 @@ Recommendation.localPath = function(root, graph){
 	var nodes = graph.nodes();
 	for(var i in nodes){
 		var a = graph.get(nodes[i]);
-        if(a.label == root) continue;
+    if(a.label == root) continue;
 		l2[a.label] = 0;
 		q2[a.label] = 0;
 		var predecessors = a.pre;
@@ -42,6 +42,7 @@ Recommendation.localPath = function(root, graph){
 			if(b.pre.indexOf(root) >= 0){
 				l2[a.label] += Recommendation.getWeight(a.starred, a.watched, a.languages, b.starred, b.watched, b.languages);
 				l2[a.label] += Recommendation.getWeight(b.starred, b.watched, b.languages, rootNode.starred, rootNode.watched, rootNode.languages);
+
 				q2[a.label]++;
 			}
 		}
@@ -80,7 +81,7 @@ Recommendation.prepare = function(dict, root, graph){
     	var pre = graph.path(item[0], root);
         path.shift();
         return {
-			index: i++,
+					index: i,
             login: item[0],
             avatar: graph.get(item[0]).avatar,
             pre: pre.map(function(p){ return { pavatar: graph.get(p).avatar } }),

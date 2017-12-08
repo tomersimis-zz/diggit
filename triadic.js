@@ -28,6 +28,15 @@ function update_mask_edge_AB(node_a, node_b){
     return before != mask;
 }
 
+//
+// for each nodeaon the graph, do:
+//   for each nodebon the graph and different of nodea, do:
+// 		for each nodec on the graph and different of nodea and nodeb, do:
+// 			count the triad nodea -> nodeb -> nodec if exists and was not counted before
+//       count the triad nodea -> nodeb -> nodec -> nodea if exists and was not counted before
+//
+
+
 function update_mask_edge_BC(node_b, node_c){
     before = mask;
     mask |= graph.existsEdge(node_c, node_b)*8;
@@ -147,6 +156,7 @@ Triadic.getRecommendations = function(node){
 
         recommend_list.push([curr_score, curr]);
     }
+    var cnt = 1;
 
     recommend_list.sort(function(first, second){
         return second[0] - first[0];
@@ -156,6 +166,7 @@ Triadic.getRecommendations = function(node){
         var pre = graph.path(curr[1], node);
         path.shift();
         return {
+            index: cnt++,
             login: curr[1],
             avatar: graph.get(curr[1]).avatar,
             pre: pre.map(function(p){ return { pavatar: graph.get(p).avatar } }),
